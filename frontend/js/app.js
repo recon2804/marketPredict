@@ -9,6 +9,7 @@ const marketContent = document.querySelector("#market-content");
         {style: "decimal", minimumFractionDigits: 2, maximumFractionDigits: 2, signDisplay: "exceptZero"})
 
 let selectedSymbol = "AAPL"
+let marketData = [];
 
 //Card rendering
  function renderMarketCards(data) {
@@ -263,3 +264,48 @@ const initialPeriodButton = document.querySelector(".chart-period.is-active");
 if (initialPeriodButton) {
     updateChartPeriod(initialPeriodButton.dataset.period);
 }
+
+//Frontend pro načtení dat Loading, Success, Error
+function showMarketMessage(message, showRetry = false) {
+    const retryButton = showRetry
+    ? `<button id="retry-markets">Zkusit znovu</button>`
+    : "";
+
+    marketContent.innerHTML = `
+        <div class="market-empty">
+            <p>${message}</p>
+            ${retryButton}
+        </div>
+    `;
+}
+
+marketContent.addEventListener("click", (event)=>{
+        if(event.target.closest("#retry-markets")){
+            loadMarkets()
+        }
+    })
+
+//Načítání backendu
+async function loadMarkets() {
+    try {
+        showMarketMessage("Načítám instrumenty...");
+        const response = await fetch("http://localhost:3000/api/markets");
+
+        if (!response.ok) {
+            throw new Error(`HTTP chyba: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        marketData = data;
+       
+       updateMarketView()
+
+    } catch (error) {
+         marketData = [];
+        showMarketMessage("Nepodařilo se načíst data. Zkontroluj připojení k serveru.", true); 
+        console.error("Nepodařilo se načíst instrumenty:", error);
+    }
+}
+
+loadMarkets();

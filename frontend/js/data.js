@@ -1,5 +1,5 @@
 //Mocking data for instruments
-const marketData = [
+const mockMarketData = [
     {
         id: 1,
         symbol: "AAPL",
