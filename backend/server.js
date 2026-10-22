@@ -7,7 +7,7 @@ const cors = require("cors")
 app.use(express.json());
 app.use(cors());
 
-//Endpointy
+//Demonstrační data
 const markets = [
      {
         id: 1,
@@ -43,6 +43,20 @@ const markets = [
     }
 ];
 
+const marketHistory = {
+    AAPL: [
+        { time: "2026-10-19", value: 250.40 },
+        { time: "2026-10-20", value: 252.80 },
+        { time: "2026-10-21", value: 251.60 }
+    ],
+    MSFT: [
+        { time: "2026-10-19", value: 510.20 },
+        { time: "2026-10-20", value: 513.50 },
+        { time: "2026-10-21", value: 511.80 }
+    ]
+};
+
+//Endpointy
 //Kontrola stavu serveru
 app.get("/api/health", (req, res) => {
     res.json({
@@ -72,6 +86,21 @@ app.get("/api/markets/:symbol", (req, res) => {
     }
 
     res.json(instrument);
+});
+
+//Vrácení historie grafu
+app.get("/api/markets/:symbol/history", (req, res) => {
+    const symbol = req.params.symbol.toUpperCase();
+
+    const history = marketHistory[symbol]
+
+    if (!history) {
+        return res.status(404).json({
+            error: "Data pro tento instrument neexistují."
+        });
+    }
+
+    res.json(history);
 });
 
 //Spuštění serveru
