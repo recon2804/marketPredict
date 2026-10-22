@@ -1,3 +1,5 @@
+import { fetchMarkets, fetchMarketBySymbol } from "./api.js";
+
 //DOM id for card
 const marketContent = document.querySelector("#market-content");
 
@@ -289,13 +291,7 @@ marketContent.addEventListener("click", (event)=>{
 async function loadMarkets() {
     try {
         showMarketMessage("Načítám instrumenty...");
-        const response = await fetch("http://localhost:3000/api/markets");
-
-        if (!response.ok) {
-            throw new Error(`HTTP chyba: ${response.status}`);
-        }
-
-        const data = await response.json();
+        const data = await fetchMarkets();
 
         marketData = data;
        
@@ -309,3 +305,14 @@ async function loadMarkets() {
 }
 
 loadMarkets();
+
+async function testMarketBySymbol() {
+    try {
+        const instrument = await fetchMarketBySymbol("AAPL");
+        console.log("Načtený instrument:", instrument);
+    } catch (error) {
+        console.error("Chyba při načítání instrumentu:", error);
+    }
+}
+
+testMarketBySymbol();
