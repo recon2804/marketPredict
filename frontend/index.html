@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>MarketPredict | DK Digital</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+
+    <script src="js/data.js" defer></script>
+    <script src="js/app.js" defer></script>
+    <script src="https://unpkg.com/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+
+    <div class="app">
+        <!-- sidebar navigation -->
+        <aside class="sidebar">
+            <h2 class="sidebar__logo">MarketPredict</h2>
+
+            <nav class="sidebar__nav" aria-label="Hlavní navigace">
+                <a href="#dashboard" class="sidebar__link is-active">Dashboard</a>
+                <a href="#stocks" class="sidebar__link">Stocks</a>
+                <a href="#etf" class="sidebar__link">ETF</a>
+                <a href="#predictions_portfolio" class="sidebar__link">Predictions a Portfolio</a>
+            </nav>
+        </aside>
+
+        <main class="main" id="dashboard">
+            <header class="topbar">
+                <h1>Market Overview</h1>
+                <p>Stock & ETF Analytics <span>v0.1.0</span></p>
+            </header>
+
+            <section class="market">
+                <h2>Market Dashboard</h2>
+
+                <!-- Search input  -->
+                <div class="market-search">
+                    <label for="market-search-input">Vyhledávání instrumentů</label>
+                    <input type="search" id="market-search-input" placeholder="Hledat akcii nebo ETF..." autocomplete="off">
+                </div>
+
+                <!-- Filters  -->
+                <div class="market-filters">
+                    <button class="market-filter is-active" data-filter="all">Vše</button>
+                    <button class="market-filter" data-filter="stock">Akcie</button>
+                    <button class="market-filter" data-filter="etf">ETF</button>
+                </div>
+                
+                <!-- Counter for results -->
+                 <div class="market-summary">
+                    <p>Zobrazeno: <span id="market-count"> 0 </span> instrumentů</p>
+                </div>
+
+                <div id="market-content"></div>
+            </section>
+
+            <section class="chart-section">
+                <div class="chart-section__header">
+                    <h2 id="chart-title">Apple Inc. (AAPL) – Price History</h2>
+                    <div class="chart-periods">
+                        <button class="chart-period is-active" data-period="1M">1M</button>
+                        <button class="chart-period" data-period="3M">3M</button>
+                        <button class="chart-period" data-period="6M">6M</button>
+                        <button class="chart-period" data-period="1Y">1Y</button>
+                        <button class="chart-period" data-period="ALL">ALL</button>
+                    </div>
+                    <p>Historical market data</p>
+                </div>
+
+    <div id="price-chart"></div>
+</section>
+
+        </main>
+
+    </div>
+
+</body>
+</html>

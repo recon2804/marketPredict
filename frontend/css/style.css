@@ -1,0 +1,129 @@
+
+:root {
+    --color-background: #020617;
+    --color-surface: #0f172a;
+    --color-border: #1e293b;
+
+    --color-primary: #38bdf8;
+    --color-positive: #22c55e;
+    --color-negative: #ef4444;
+
+    --color-text: #f1f5f9;
+    --color-muted: #94a3b8;
+
+    --sidebar-width: 250px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--color-background);
+    color: var(--color-text);
+}
+
+.app {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    min-height: 100vh;
+}
+
+.sidebar {
+    padding: 24px;
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+}
+
+.sidebar__logo {
+    color: var(--color-primary);
+}
+
+.sidebar__nav {
+    margin-top: 40px;
+}
+
+.sidebar__link {
+    display: block;
+    color: var(--color-text);
+    text-decoration: none;
+    padding: 12px;
+}
+
+.is-active {
+    background: var(--color-muted);
+    border-radius: 10px;
+}
+
+.main {
+    min-width: 0;
+    padding: 32px;
+}
+
+.topbar {
+    margin-bottom: 40px;
+}
+
+.topbar p {
+    color: var(--color-muted);
+}
+
+/*Market-data */
+.market-card__change--positive {
+    color: var(--color-positive);
+}
+
+.market-card__change--negative {
+    color: var(--color-negative);
+}
+
+/*Buttons for chart periods */
+.chart-periods {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.chart-period {
+    padding: 8px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--color-muted);
+    cursor: pointer;
+}
+
+.chart-period:hover {
+    color: var(--color-text);
+}
+
+.chart-period.is-active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+}
+
+/*Responzivita */
+
+@media (max-width: 768px) {
+    .app {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .sidebar__nav {
+        margin-top: 16px;
+    }
+
+    .main {
+        padding: 20px;
+    }
+}
+
