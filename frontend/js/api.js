@@ -17,3 +17,22 @@ async function apiGet(endpoint) {
 
     return await response.json();
 }
+
+export function fetchMarketHistory(symbol) {
+    return apiGet(`/api/markets/${encodeURIComponent(symbol)}/history`);
+}
+
+// Testovací funkce pro ověření, že fetchMarketHistory funguje správně
+async function testMarketHistory() {
+    try {
+        const history = await fetchMarketHistory("AAPL");
+
+        console.log("Historie AAPL:", history);
+        console.log("Počet záznamů:", history.length);
+
+    } catch (error) {
+        console.error("Chyba při načítání historie:", error);
+    }
+}
+
+testMarketHistory();

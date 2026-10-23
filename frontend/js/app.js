@@ -1,4 +1,4 @@
-import { fetchMarkets, fetchMarketBySymbol } from "./api.js";
+import { fetchMarkets, fetchMarketBySymbol, fetchMarketHistory } from "./api.js";
 
 //DOM id for card
 const marketContent = document.querySelector("#market-content");
@@ -142,39 +142,21 @@ marketContent.addEventListener("click", (event) => {
         return;
     }
 
-    // 2. Získáme symbol kliknuté akcie
     const clickedSymbol = selectedCard.dataset.symbol;
-
-    // 3. Najdeme historická data
-    const selectedHistory = marketHistory[clickedSymbol];
-
-    if (!selectedHistory) {
-        return;
-    }
-
-    // 4. Aktualizujeme stav aplikace
     selectedSymbol = clickedSymbol;
 
-    // 5. Odebereme zvýraznění ze všech karet
     document.querySelectorAll(".market-card").forEach((card) => {
         card.classList.remove("is-selected");
     });
 
-    // 6. Zvýrazníme kliknutou kartu
     selectedCard.classList.add("is-selected");
+    
+    loadMarketHistory(selectedSymbol);
 
-    // 7. Aktualizujeme graf
-    const activePeriodButton = document.querySelector(".chart-period.is-active");
-    const activePeriod = activePeriodButton?.dataset.period ?? "ALL";
-
-updateChartPeriod(activePeriod);
-
-    // 8. Najdeme informace o instrumentu
     const selectedStock = marketData.find((oneStock) => {
         return oneStock.symbol === selectedSymbol;
     });
 
-    // 9. Aktualizujeme nadpis grafu
     const chartTitle = document.querySelector("#chart-title");
 
     if (selectedStock && chartTitle) {
@@ -193,8 +175,8 @@ chartPeriodButtons.forEach((button) => {
 
         button.classList.add("is-active");
 
-        const period = button.dataset.period;
-        updateChartPeriod(period);
+        activePeriod = button.dataset.period;
+        updateChartPeriod(activePeriod);
     });
 });
 
@@ -242,9 +224,9 @@ function filterHistoryByDate(history, startDate) {
 
 //Function to update chart period based on selected button
 function updateChartPeriod(period) {
-    const selectedHistory = marketHistory[selectedSymbol];
+    const selectedHistory = currentMarketHistory;
 
-    if (!selectedHistory) {
+    if (!selectedHistory || selectedHistory.length === 0) {
         return;
     }
 
@@ -258,13 +240,7 @@ function updateChartPeriod(period) {
     }
 
     lineSeries.setData(filteredHistory);
-    chart.timeScale().fitContent();;
-}
-
-const initialPeriodButton = document.querySelector(".chart-period.is-active");
-
-if (initialPeriodButton) {
-    updateChartPeriod(initialPeriodButton.dataset.period);
+    chart.timeScale().fitContent();
 }
 
 //Frontend pro načtení dat Loading, Success, Error
@@ -306,6 +282,7 @@ async function loadMarkets() {
 
 loadMarkets();
 
+//Testovací funkce pro ověření, že fetchMarketBySymbol funguje správně
 async function testMarketBySymbol() {
     try {
         const instrument = await fetchMarketBySymbol("AAPL");
@@ -316,3 +293,43 @@ async function testMarketBySymbol() {
 }
 
 testMarketBySymbol();
+
+// Testovací funkce pro ověření, že fetchMarketHistory funguje správně
+async function testMarketHistory() {
+    try {
+        const history = await fetchMarketHistory("AAPL");
+
+        console.log("Historie AAPL:", history);
+        console.log("Počet záznamů:", history.length);
+        console.log("První záznam:", history[0]);
+
+    } catch (error) {
+        console.error("Chyba při načítání historie:", error);
+    }
+}
+
+testMarketHistory();
+
+let currentMarketHistory = [];
+
+let activePeriod =
+    document.querySelector(".chart-period.is-active")?.dataset.period || "ALL";
+
+// Načítání historie grafu pro vybraný instrument
+async function loadMarketHistory(symbol) {
+    try {
+        const history = await fetchMarketHistory(symbol);
+
+        if (symbol !== selectedSymbol) {
+            return;
+        }
+
+        currentMarketHistory = history;
+        updateChartPeriod(activePeriod);
+
+    } catch (error) {
+        console.error("Chyba při načítání historie:", error);
+    }
+}
+
+loadMarketHistory(selectedSymbol);

@@ -2,6 +2,7 @@ const express = require(`express`);
 const app = express();
 const port = 3000;
 const cors = require("cors")
+const { marketHistory } = require("./data/marketData");
 
 //MiddLeware
 app.use(express.json());
@@ -43,6 +44,7 @@ const markets = [
     }
 ];
 
+/*Možno odebrat, pokud se bude generovat historie z backendu
 const marketHistory = {
     AAPL: [
         { time: "2026-10-19", value: 250.40 },
@@ -55,6 +57,7 @@ const marketHistory = {
         { time: "2026-10-21", value: 511.80 }
     ]
 };
+*/
 
 //Endpointy
 //Kontrola stavu serveru
