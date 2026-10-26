@@ -44,21 +44,6 @@ const markets = [
     }
 ];
 
-/*Možno odebrat, pokud se bude generovat historie z backendu
-const marketHistory = {
-    AAPL: [
-        { time: "2026-10-19", value: 250.40 },
-        { time: "2026-10-20", value: 252.80 },
-        { time: "2026-10-21", value: 251.60 }
-    ],
-    MSFT: [
-        { time: "2026-10-19", value: 510.20 },
-        { time: "2026-10-20", value: 513.50 },
-        { time: "2026-10-21", value: 511.80 }
-    ]
-};
-*/
-
 //Endpointy
 //Kontrola stavu serveru
 app.get("/api/health", (req, res) => {
