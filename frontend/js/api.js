@@ -8,8 +8,10 @@ export function fetchMarketBySymbol(symbol) {
     return apiGet(`/api/markets/${encodeURIComponent(symbol)}`);
 }
 
-async function apiGet(endpoint) {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`);
+async function apiGet(endpoint, signal = undefined) {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        signal
+    });
 
     if (!response.ok) {
         throw new Error(`HTTP chyba: ${response.status}`);
@@ -18,8 +20,8 @@ async function apiGet(endpoint) {
     return await response.json();
 }
 
-export function fetchMarketHistory(symbol) {
-    return apiGet(`/api/markets/${encodeURIComponent(symbol)}/history`);
+export function fetchMarketHistory(symbol, signal) {
+    return apiGet(`/api/markets/${encodeURIComponent(symbol)}/history`, signal);
 }
 
 // Testovací funkce pro ověření, že fetchMarketHistory funguje správně

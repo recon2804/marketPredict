@@ -282,52 +282,59 @@ async function loadMarkets() {
 
 loadMarkets();
 
-//Testovací funkce pro ověření, že fetchMarketBySymbol funguje správně
-async function testMarketBySymbol() {
-    try {
-        const instrument = await fetchMarketBySymbol("AAPL");
-        console.log("Načtený instrument:", instrument);
-    } catch (error) {
-        console.error("Chyba při načítání instrumentu:", error);
-    }
-}
-
-testMarketBySymbol();
-
-// Testovací funkce pro ověření, že fetchMarketHistory funguje správně
-async function testMarketHistory() {
-    try {
-        const history = await fetchMarketHistory("AAPL");
-
-        console.log("Historie AAPL:", history);
-        console.log("Počet záznamů:", history.length);
-        console.log("První záznam:", history[0]);
-
-    } catch (error) {
-        console.error("Chyba při načítání historie:", error);
-    }
-}
-
-testMarketHistory();
-
 let currentMarketHistory = [];
 
-let activePeriod =
-    document.querySelector(".chart-period.is-active")?.dataset.period || "ALL";
+let activePeriod = document.querySelector(".chart-period.is-active")?.dataset.period || "ALL";
+
+// Načítání historie grafu pro vybraný instrument
+const chartStatus = document.querySelector("#chart-status");
+
+function showChartStatus(message) {
+    chartStatus.textContent = message;
+    chartStatus.hidden = !message;
+}
+
+ let historyController = null;
 
 // Načítání historie grafu pro vybraný instrument
 async function loadMarketHistory(symbol) {
-    try {
-        const history = await fetchMarketHistory(symbol);
+    showChartStatus("Načítám historická data...");
+    currentMarketHistory = [];
+    lineSeries.setData([]);
 
-        if (symbol !== selectedSymbol) {
+    if (historyController != null) {
+        historyController.abort()
+    }
+
+    historyController = new AbortController()
+    const controller = historyController;
+
+    try {
+        const history = await fetchMarketHistory(symbol, controller.signal);
+
+        if (symbol !== selectedSymbol || controller !== historyController) {
+            return;
+        }
+
+        if (history.length === 0) {
+            showChartStatus("Pro tento instrument nejsou dostupná historická data.");
             return;
         }
 
         currentMarketHistory = history;
         updateChartPeriod(activePeriod);
+        showChartStatus("");
 
-    } catch (error) {
+        } catch (error) {
+            if (error.name === "AbortError") {
+            return;
+        }
+
+        if (symbol !== selectedSymbol || controller !== historyController) {
+            return;
+        }
+
+        showChartStatus("Historická data se nepodařilo načíst.");
         console.error("Chyba při načítání historie:", error);
     }
 }
