@@ -5,6 +5,7 @@ const app = express();
 const port = Number(process.env.PORT) || 3000;
 const cors = require("cors")
 const { marketHistory } = require("./data/marketData");
+const { getMarketHistory } = require("./services/marketService");
 
 //MiddLeware
 app.use(express.json());
@@ -79,10 +80,10 @@ app.get("/api/markets/:symbol", (req, res) => {
 });
 
 //Vrácení historie grafu
-app.get("/api/markets/:symbol/history", (req, res) => {
+app.get("/api/markets/:symbol/history",  async (req, res) => {
     const symbol = req.params.symbol.toUpperCase();
 
-    const history = marketHistory[symbol]
+    const history = await getMarketHistory(symbol)
 
     if (!history) {
         return res.status(404).json({
