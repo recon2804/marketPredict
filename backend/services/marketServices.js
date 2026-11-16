@@ -1,9 +1,59 @@
 const historyCache = new Map();
 const CACHE_TTL = 15 * 60 * 1000;
+const DAILY_API_LIMIT = 25;
+
+let dailyRequestCount = 0;
+let lastRequestDate = new Date().toISOString().slice(0, 10);
+
+function resetDailyCounter() {
+    const today = new Date().toISOString().slice(0, 10);
+
+    if (today !== lastRequestDate) {
+        dailyRequestCount = 0;
+        lastRequestDate = today;
+    }
+}
+
+function canMakeApiRequest() {
+    resetDailyCounter();
+
+    return dailyRequestCount > DAILY_API_LIMIT;
+}
+
+function registerApiRequest() {
+    resetDailyCounter();
+    dailyRequestCount ++;
+    console.log(`Alpha Vantage API: ${dailyRequestCount}/${DAILY_API_LIMIT} požadavků`);
+}
+
+function acquireApiRequestSlot() {
+    if (!canMakeApiRequest()) {
+        throw new Error("Denní limit Alpha Vantage byl vyčerpán.");
+    }
+
+    registerApiRequest();
+}
 
 const pendingRequests = new Map()
 const quoteCache = new Map();
 
+let quoteQueue = Promise.resolve();
+
+const sleep = (ms) => {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
+};
+
+function enqueueQuoteRequest(task) {
+    const request = quoteQueue.then(async () => {
+        return task();
+    });
+
+    quoteQueue = request.catch(() => {});
+
+    return request;
+}
 
 
 async function getMarketHistory(symbol) {
@@ -23,7 +73,7 @@ async function getMarketHistory(symbol) {
         return pendingRequests.get(symbol);
     }
 
-    const requestPromise = fetchMarketHistory(symbol)
+    const requestPromise = enqueueQuoteRequest(() => fetchMarketQuote(symbol));
 
     pendingRequests.set(symbol, requestPromise)
 
@@ -157,5 +207,7 @@ async function fetchMarketQuote(symbol) {
 
     return quoteData
 }
+
+
 
 module.exports = { getMarketHistory, getMarketQuote};
