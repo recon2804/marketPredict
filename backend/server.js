@@ -5,7 +5,7 @@ const app = express();
 const port = Number(process.env.PORT) || 3000;
 const cors = require("cors")
 const { marketHistory } = require("./data/marketData");
-const { getMarketHistory } = require("./services/marketService");
+const { getMarketHistory, getMarketQuote } = require("./services/marketService");
 
 //MiddLeware
 app.use(express.json());
@@ -57,10 +57,60 @@ app.get("/api/health", (req, res) => {
 });
 });
 
-//Vrácení všech instrumentů
-app.get("/api/markets", (req, res) => {
-    res.json(markets)
+//Vrácení ceny konkrétního instrumentu
+app.get("/api/markets/:symbol/quote", async (req, res) => {
+    const symbol = req.params.symbol.toUpperCase();
+
+    try {
+       const quote = await getMarketQuote(symbol)
+        res.status(200).json(quote)
+    } catch (error) {
+        console.error(error)
+        res.status(502).json({ error: "Nepodařilo se načíst cenová data." })
+    }
 });
+
+// Vrácení všech instrumentů
+app.get("/api/markets", async (req, res) => {
+
+    try {
+        const marketPromises = markets.map(async (instrument) => {
+        const quote = await getMarketQuote(instrument.symbol);
+        
+        const updatedInstrument = {
+            ...instrument,
+            price: quote.price,
+            changePercent: quote.changePercent
+        };
+
+        return updatedInstrument
+});
+
+    const results = await Promise.allSettled(marketPromises);
+
+    const updatedMarkets = results.map((result, index) => {
+
+    if (result.status === "fulfilled") {
+        return result.value;
+    }
+
+    return {
+        ...markets[index],
+        price: null,
+        changePercent: null
+    };
+
+});
+
+    res.status(200).json(updatedMarkets)
+
+    } catch (error) {
+        console.error(error)
+        res.status(502).json({ error: "Nepodařilo se načíst tržní data."})
+    }
+   
+});
+
 
 //Vrácení konrétního instrumentu
 app.get("/api/markets/:symbol", (req, res) => {
@@ -83,15 +133,16 @@ app.get("/api/markets/:symbol", (req, res) => {
 app.get("/api/markets/:symbol/history",  async (req, res) => {
     const symbol = req.params.symbol.toUpperCase();
 
-    const history = await getMarketHistory(symbol)
+    try {
+       const history = await getMarketHistory(symbol)
+        res.status(200).json(history);
 
-    if (!history) {
-        return res.status(404).json({
-            error: "Data pro tento instrument neexistují."
-        });
+    } catch (error) {
+        console.error(error)
+
+        res.status(502).json({ error: "Nepodařilo se načíst historická data." })
     }
 
-    res.json(history);
 });
 
 //Spuštění serveru
